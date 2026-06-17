@@ -15,15 +15,15 @@
 }
 
 body{
+    font-family:Segoe UI,Arial,sans-serif;
     min-height:100vh;
-    font-family:'Segoe UI',sans-serif;
     background:url('https://xatimg.com/image/EfoTbkB34Hg4.png') center center/cover no-repeat fixed;
 }
 
 .overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.45);
+    background:rgba(0,0,0,.50);
 }
 
 .container{
@@ -39,81 +39,80 @@ body{
 }
 
 .sidebar{
-    width:430px;
+    width:450px;
     display:flex;
     flex-direction:column;
     gap:15px;
 }
 
 .box{
-    background:rgba(0,0,0,.72);
+    background:rgba(0,0,0,.75);
     backdrop-filter:blur(10px);
 
-    border-radius:20px;
+    border-radius:18px;
     padding:18px;
 
-    color:white;
+    border:1px solid rgba(255,255,255,.10);
 
-    border:1px solid rgba(255,255,255,.1);
+    color:white;
 }
 
 .box h2{
     color:#FFD700;
-    margin-bottom:15px;
-    font-size:20px;
-}
-
-.power-image{
-    width:140px;
-    height:140px;
-    object-fit:contain;
-
-    display:block;
-    margin:auto;
+    margin-bottom:12px;
 }
 
 .power-name{
-    text-align:center;
-    font-size:24px;
+    font-size:28px;
     font-weight:bold;
-    margin-top:10px;
     color:#FFD700;
+    text-align:center;
 }
 
 .power-desc{
     margin-top:10px;
-    text-align:center;
     line-height:1.5;
+    text-align:center;
 }
 
 .price{
-    margin-top:15px;
-    text-align:center;
-
-    font-size:24px;
+    margin-top:12px;
+    font-size:26px;
     font-weight:bold;
-
     color:#FFD700;
+    text-align:center;
+}
+
+.release{
+    margin-top:8px;
+    text-align:center;
+}
+
+.status{
+    margin-top:5px;
+    text-align:center;
+    color:#7CFF7C;
 }
 
 .promoted-item{
     padding:10px;
-    margin-bottom:8px;
-
-    background:rgba(255,255,255,.08);
-
     border-radius:10px;
+    background:rgba(255,255,255,.08);
+    margin-bottom:8px;
+}
+
+.power-card{
+    padding:10px;
+    border-radius:10px;
+    background:rgba(255,255,255,.08);
+    margin-bottom:8px;
 }
 
 input{
     width:100%;
     padding:12px;
-
     border:none;
-    outline:none;
-
     border-radius:10px;
-
     margin-bottom:10px;
 }
 
@@ -127,7 +126,6 @@ button{
     cursor:pointer;
 
     font-weight:bold;
-    font-size:15px;
 
     background:#FFD700;
 }
@@ -136,23 +134,14 @@ button{
     margin-top:10px;
     padding:10px;
 
-    background:rgba(255,255,255,.08);
     border-radius:10px;
 
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.power-result img{
-    width:60px;
-    height:60px;
-    object-fit:contain;
+    background:rgba(255,255,255,.08);
 }
 
 .loading{
     text-align:center;
-    padding:15px;
+    padding:10px;
 }
 
 @media(max-width:768px){
@@ -163,7 +152,7 @@ button{
 
     .sidebar{
         width:100%;
-        max-width:430px;
+        max-width:450px;
     }
 
 }
@@ -177,46 +166,46 @@ button{
 
 <div class="container">
 
-    <div class="sidebar">
+<div class="sidebar">
 
-        <div class="box">
-
-            <h2>🆕 Novo Power</h2>
-
-            <div id="latestPower" class="loading">
-                Carregando...
-            </div>
-
+    <div class="box">
+        <h2>🆕 Novo Power</h2>
+        <div id="latestPower" class="loading">
+            Carregando...
         </div>
+    </div>
 
-        <div class="box">
-
-            <h2>📢 Chats Promovidos</h2>
-
-            <div id="promotedChats" class="loading">
-                Carregando...
-            </div>
-
+    <div class="box">
+        <h2>🔥 Últimos Powers</h2>
+        <div id="allPowers" class="loading">
+            Carregando...
         </div>
+    </div>
 
-        <div class="box">
-
-            <h2>⚡ Buscar Código de Powers</h2>
-
-            <input
-                type="text"
-                id="powerCode"
-                placeholder="blowkiss#y#aqbubbles">
-
-            <button onclick="buscarPower()">
-                Buscar Power
-            </button>
-
-            <div id="powerInfo"></div>
-
+    <div class="box">
+        <h2>📢 Chats Promovidos</h2>
+        <div id="promotedChats" class="loading">
+            Carregando...
         </div>
+    </div>
+
+    <div class="box">
+        <h2>⚡ Buscar Código de Powers</h2>
+
+        <input
+            type="text"
+            id="powerCode"
+            placeholder="blowkiss#y#aqbubbles">
+
+        <button onclick="buscarPower()">
+            Buscar Power
+        </button>
+
+        <div id="powerInfo"></div>
 
     </div>
+
+</div>
 
 </div>
 
@@ -234,39 +223,31 @@ async function carregarLatest(){
         const data =
         await req.json();
 
-        const img =
-            data.image ||
-            data.icon ||
-            data.img ||
-            data.thumb ||
-            "";
-
-        const valor =
-            data.cost ||
-            data.price ||
-            data.value ||
-            "?";
+        const power =
+        data.powers[0];
 
         document.getElementById(
             "latestPower"
         ).innerHTML = `
 
-            ${img ?
-            `<img
-            src="${img}"
-            class="power-image">`
-            : ''}
-
             <div class="power-name">
-                ${data.name || 'Novo Power'}
+                ${power.name.toUpperCase()}
             </div>
 
             <div class="power-desc">
-                ${data.description || ''}
+                ${power.description.long}
             </div>
 
             <div class="price">
-                ${valor} xats
+                ${power.prices.store}
+            </div>
+
+            <div class="release">
+                📅 ${power.released}
+            </div>
+
+            <div class="status">
+                ${power.status.toUpperCase()}
             </div>
 
         `;
@@ -276,7 +257,60 @@ async function carregarLatest(){
         document.getElementById(
             "latestPower"
         ).innerHTML =
-        "Erro ao carregar Power.";
+        "Erro ao carregar.";
+
+    }
+
+}
+
+async function carregarTodosPowers(){
+
+    try{
+
+        const req =
+        await fetch(
+            "https://api.xatblog.net/latest"
+        );
+
+        const data =
+        await req.json();
+
+        let html='';
+
+        data.powers.forEach(power=>{
+
+            html += `
+
+            <div class="power-card">
+
+                <strong>
+                    ${power.name}
+                </strong>
+
+                <br>
+
+                ${power.prices.store}
+
+                <br>
+
+                📅 ${power.released}
+
+            </div>
+
+            `;
+
+        });
+
+        document.getElementById(
+            "allPowers"
+        ).innerHTML = html;
+
+    }catch(error){
+
+        document.getElementById(
+            "allPowers"
+        ).innerHTML =
+        "Erro ao carregar.";
 
     }
 
@@ -301,24 +335,22 @@ async function carregarPromoted(){
             data.forEach(chat=>{
 
                 html += `
-
                 <div class="promoted-item">
-
-                    ${chat.name ||
-                      chat.chat ||
-                      'Chat Promovido'}
-
+                    ${chat.name || chat.chat || 'Chat'}
                 </div>
-
                 `;
 
             });
+
+        }else{
+
+            html = "Nenhum chat promovido.";
 
         }
 
         document.getElementById(
             "promotedChats"
-        ).innerHTML = html || "Nenhum chat.";
+        ).innerHTML = html;
 
     }catch(error){
 
@@ -344,8 +376,8 @@ async function buscarPower(){
 
         const req =
         await fetch(
-            "https://api.xatblog.net/powers/findpowers?code="
-            + encodeURIComponent(codigo)
+            "https://api.xatblog.net/powers/findpowers?code=" +
+            encodeURIComponent(codigo)
         );
 
         const data =
@@ -353,31 +385,21 @@ async function buscarPower(){
 
         let html='';
 
-        if(Array.isArray(data)){
+        if(data.powers){
 
-            data.forEach(power=>{
+            data.powers.forEach(power=>{
 
                 html += `
 
                 <div class="power-result">
 
-                    <img
-                    src="${
-                        power.image ||
-                        power.icon ||
-                        ''
-                    }">
+                    <strong>
+                        ${power.name}
+                    </strong>
 
-                    <div>
+                    <br>
 
-                        <strong>
-                            ${
-                                power.name ||
-                                'Power'
-                            }
-                        </strong>
-
-                    </div>
+                    ${power.description?.short || ''}
 
                 </div>
 
@@ -404,17 +426,12 @@ async function buscarPower(){
 }
 
 carregarLatest();
+carregarTodosPowers();
 carregarPromoted();
 
-setInterval(
-    carregarLatest,
-    300000
-);
-
-setInterval(
-    carregarPromoted,
-    300000
-);
+setInterval(carregarLatest,300000);
+setInterval(carregarTodosPowers,300000);
+setInterval(carregarPromoted,300000);
 
 </script>
 
