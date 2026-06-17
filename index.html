@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Último Power Xat</title>
+<title>Buteco Premium XatsFrame</title>
 
 <style>
 
@@ -16,9 +16,8 @@
 
 body{
     min-height:100vh;
-    font-family:Segoe UI,Arial,sans-serif;
+    font-family:'Segoe UI',sans-serif;
     background:url('https://xatimg.com/image/EfoTbkB34Hg4.png') center center/cover no-repeat fixed;
-    overflow:hidden;
 }
 
 .overlay{
@@ -34,98 +33,137 @@ body{
 
     display:flex;
     justify-content:flex-end;
-    align-items:center;
+    align-items:flex-start;
 
-    padding-right:60px;
+    padding:20px;
 }
 
-.card{
-    width:450px;
-    padding:30px;
+.sidebar{
+    width:430px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
 
-    background:rgba(0,0,0,.65);
+.box{
+    background:rgba(0,0,0,.72);
     backdrop-filter:blur(10px);
 
-    border:1px solid rgba(255,255,255,.15);
+    border-radius:20px;
+    padding:18px;
 
-    border-radius:25px;
+    color:white;
 
-    color:#fff;
-    text-align:center;
-
-    box-shadow:0 15px 40px rgba(0,0,0,.4);
+    border:1px solid rgba(255,255,255,.1);
 }
 
-.logo{
-    font-size:32px;
-    font-weight:700;
-    margin-bottom:10px;
+.box h2{
+    color:#FFD700;
+    margin-bottom:15px;
+    font-size:20px;
 }
 
-.sub{
-    opacity:.8;
-    margin-bottom:25px;
-}
-
-.power-img{
-    width:180px;
-    height:180px;
+.power-image{
+    width:140px;
+    height:140px;
     object-fit:contain;
 
     display:block;
     margin:auto;
-
-    margin-bottom:15px;
 }
 
 .power-name{
-    font-size:28px;
+    text-align:center;
+    font-size:24px;
     font-weight:bold;
+    margin-top:10px;
     color:#FFD700;
-    margin-bottom:10px;
 }
 
 .power-desc{
+    margin-top:10px;
+    text-align:center;
     line-height:1.5;
-    opacity:.9;
 }
 
 .price{
-    margin-top:20px;
-
-    background:#FFD700;
-    color:#000;
-
-    display:inline-block;
-
-    padding:12px 25px;
-
-    border-radius:50px;
+    margin-top:15px;
+    text-align:center;
 
     font-size:24px;
     font-weight:bold;
+
+    color:#FFD700;
+}
+
+.promoted-item{
+    padding:10px;
+    margin-bottom:8px;
+
+    background:rgba(255,255,255,.08);
+
+    border-radius:10px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+
+    border:none;
+    outline:none;
+
+    border-radius:10px;
+
+    margin-bottom:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+
+    border:none;
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+    font-size:15px;
+
+    background:#FFD700;
+}
+
+.power-result{
+    margin-top:10px;
+    padding:10px;
+
+    background:rgba(255,255,255,.08);
+    border-radius:10px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.power-result img{
+    width:60px;
+    height:60px;
+    object-fit:contain;
 }
 
 .loading{
-    padding:20px;
-}
-
-.footer{
-    margin-top:25px;
-    opacity:.6;
-    font-size:13px;
+    text-align:center;
+    padding:15px;
 }
 
 @media(max-width:768px){
 
     .container{
         justify-content:center;
-        padding:20px;
     }
 
-    .card{
+    .sidebar{
         width:100%;
-        max-width:450px;
+        max-width:430px;
     }
 
 }
@@ -139,22 +177,43 @@ body{
 
 <div class="container">
 
-    <div class="card">
+    <div class="sidebar">
 
-        <div class="logo">
-            BUTECO PREMIUM
+        <div class="box">
+
+            <h2>🆕 Novo Power</h2>
+
+            <div id="latestPower" class="loading">
+                Carregando...
+            </div>
+
         </div>
 
-        <div class="sub">
-            Último Power lançado no Xat
+        <div class="box">
+
+            <h2>📢 Chats Promovidos</h2>
+
+            <div id="promotedChats" class="loading">
+                Carregando...
+            </div>
+
         </div>
 
-        <div id="powerBox" class="loading">
-            Carregando informações...
-        </div>
+        <div class="box">
 
-        <div class="footer">
-            Powered by xatblog API
+            <h2>⚡ Buscar Código de Powers</h2>
+
+            <input
+                type="text"
+                id="powerCode"
+                placeholder="blowkiss#y#aqbubbles">
+
+            <button onclick="buscarPower()">
+                Buscar Power
+            </button>
+
+            <div id="powerInfo"></div>
+
         </div>
 
     </div>
@@ -163,22 +222,23 @@ body{
 
 <script>
 
-async function carregarPower(){
+async function carregarLatest(){
 
     try{
 
-        const response = await fetch(
-            'https://api.xatblog.net/latest'
+        const req =
+        await fetch(
+            "https://api.xatblog.net/latest"
         );
 
-        const data = await response.json();
+        const data =
+        await req.json();
 
-        const imagem =
+        const img =
             data.image ||
-            data.img ||
             data.icon ||
+            data.img ||
             data.thumb ||
-            data.photo ||
             "";
 
         const valor =
@@ -187,17 +247,18 @@ async function carregarPower(){
             data.value ||
             "?";
 
-        document.getElementById("powerBox").innerHTML = `
+        document.getElementById(
+            "latestPower"
+        ).innerHTML = `
 
-            ${imagem ? `
-            <img
-                src="${imagem}"
-                alt="${data.name || 'Power'}"
-                class="power-img">
-            ` : ''}
+            ${img ?
+            `<img
+            src="${img}"
+            class="power-image">`
+            : ''}
 
             <div class="power-name">
-                ${data.name || 'Power Xat'}
+                ${data.name || 'Novo Power'}
             </div>
 
             <div class="power-desc">
@@ -210,21 +271,150 @@ async function carregarPower(){
 
         `;
 
-    }
-    catch(error){
+    }catch(error){
 
-        document.getElementById("powerBox").innerHTML = `
-            <div style="color:#ff9999">
-                Não foi possível carregar o último Power.
-            </div>
-        `;
+        document.getElementById(
+            "latestPower"
+        ).innerHTML =
+        "Erro ao carregar Power.";
 
-        console.error(error);
     }
 
 }
 
-carregarPower();
+async function carregarPromoted(){
+
+    try{
+
+        const req =
+        await fetch(
+            "https://api.xatblog.net/promoted"
+        );
+
+        const data =
+        await req.json();
+
+        let html='';
+
+        if(Array.isArray(data)){
+
+            data.forEach(chat=>{
+
+                html += `
+
+                <div class="promoted-item">
+
+                    ${chat.name ||
+                      chat.chat ||
+                      'Chat Promovido'}
+
+                </div>
+
+                `;
+
+            });
+
+        }
+
+        document.getElementById(
+            "promotedChats"
+        ).innerHTML = html || "Nenhum chat.";
+
+    }catch(error){
+
+        document.getElementById(
+            "promotedChats"
+        ).innerHTML =
+        "Erro ao carregar.";
+
+    }
+
+}
+
+async function buscarPower(){
+
+    const codigo =
+    document.getElementById(
+        "powerCode"
+    ).value.trim();
+
+    if(!codigo) return;
+
+    try{
+
+        const req =
+        await fetch(
+            "https://api.xatblog.net/powers/findpowers?code="
+            + encodeURIComponent(codigo)
+        );
+
+        const data =
+        await req.json();
+
+        let html='';
+
+        if(Array.isArray(data)){
+
+            data.forEach(power=>{
+
+                html += `
+
+                <div class="power-result">
+
+                    <img
+                    src="${
+                        power.image ||
+                        power.icon ||
+                        ''
+                    }">
+
+                    <div>
+
+                        <strong>
+                            ${
+                                power.name ||
+                                'Power'
+                            }
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                `;
+
+            });
+
+        }
+
+        document.getElementById(
+            "powerInfo"
+        ).innerHTML =
+        html || "Nenhum power encontrado.";
+
+    }catch(error){
+
+        document.getElementById(
+            "powerInfo"
+        ).innerHTML =
+        "Erro na consulta.";
+
+    }
+
+}
+
+carregarLatest();
+carregarPromoted();
+
+setInterval(
+    carregarLatest,
+    300000
+);
+
+setInterval(
+    carregarPromoted,
+    300000
+);
 
 </script>
 
