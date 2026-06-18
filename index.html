@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Buteco Premium - Último Power Xat</title>
+<title>Buteco Premium - Xat Power Tracker</title>
 
 <style>
-
 *{
     margin:0;
     padding:0;
@@ -19,12 +17,9 @@ body{
     display:flex;
     justify-content:flex-end;
     align-items:center;
-    padding-right:50px;
-
-    font-family:'Segoe UI',sans-serif;
-
-    background:url('https://xatimg.com/image/EfoTbkB34Hg4.png')
-    center center / cover no-repeat fixed;
+    padding:30px;
+    font-family:Segoe UI,Arial,sans-serif;
+    background:url('https://xatimg.com/image/EfoTbkB34Hg4.png') center center/cover no-repeat fixed;
 }
 
 body::before{
@@ -37,27 +32,21 @@ body::before{
 .card{
     position:relative;
     z-index:2;
-
-    width:450px;
-
-    background:rgba(0,0,0,.75);
+    width:480px;
+    background:rgba(0,0,0,.78);
     backdrop-filter:blur(12px);
-
-    border-radius:20px;
-
-    border:1px solid rgba(255,255,255,.15);
-
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,.12);
     padding:25px;
-
-    color:#fff;
-
-    box-shadow:0 15px 40px rgba(0,0,0,.4);
+    color:#FFF;
+    box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
 
-.title{
+.logo{
     text-align:center;
+    font-size:32px;
+    font-weight:bold;
     color:#FFD700;
-    font-size:28px;
     margin-bottom:20px;
 }
 
@@ -65,208 +54,122 @@ body::before{
     width:220px;
     height:220px;
     object-fit:contain;
-
     display:block;
     margin:auto;
 }
 
 .power-name{
     text-align:center;
-    margin-top:15px;
-
+    color:#FFD700;
     font-size:34px;
     font-weight:bold;
-
-    color:#FFD700;
-
+    margin-top:15px;
     text-transform:uppercase;
 }
 
 .power-desc{
-    margin-top:15px;
     text-align:center;
+    margin-top:15px;
     line-height:1.6;
 }
 
 .price{
-    margin-top:20px;
-
     text-align:center;
-
+    color:#FFD700;
     font-size:28px;
     font-weight:bold;
-
-    color:#FFD700;
+    margin-top:15px;
 }
 
-.release{
-    margin-top:10px;
+.release,
+.status{
     text-align:center;
+    margin-top:8px;
 }
 
 .status{
-    margin-top:5px;
-    text-align:center;
-
-    color:#6BFF6B;
+    color:#7CFF7C;
     font-weight:bold;
 }
 
 .countdown{
-    margin-top:20px;
-
     text-align:center;
-
-    font-size:22px;
-    font-weight:bold;
-
     color:#00D9FF;
-}
-
-.loading{
-    text-align:center;
-    padding:20px;
+    font-size:28px;
+    font-weight:bold;
+    margin-top:20px;
 }
 
 .footer{
-    margin-top:20px;
     text-align:center;
+    margin-top:20px;
     opacity:.7;
     font-size:12px;
 }
 
 @media(max-width:768px){
-
     body{
         justify-content:center;
-        padding:20px;
+        padding:15px;
     }
 
     .card{
         width:100%;
-        max-width:450px;
+        max-width:480px;
     }
-
 }
-
 </style>
 </head>
-
 <body>
 
 <div class="card">
 
-    <div class="title">
-        🆕 Último Power Lançado
+    <div class="logo">
+        BUTECO PREMIUM
     </div>
 
-    <div id="latestPower" class="loading">
-        Carregando informações...
+    <div id="conteudo">
+        Carregando...
     </div>
 
     <div class="footer">
-        Buteco Premium • Xat Powers
+        Powered by XatBlog API
     </div>
 
 </div>
 
 <script>
 
-let powerReleaseTime = 0;
+let tempoRestante = 0;
 
-function iniciarContador() {
-
-    const contador =
-    document.getElementById('countdown');
-
-    if(!contador) return;
-
-    function atualizar() {
-
-        const agora =
-        Math.floor(Date.now()/1000);
-
-        const diferenca =
-        powerReleaseTime - agora;
-
-        if(diferenca <= 0){
-
-            contador.innerHTML =
-            '✅ Já lançado';
-
-            return;
-        }
-
-        const dias =
-        Math.floor(diferenca/86400);
-
-        const horas =
-        Math.floor(
-            (diferenca%86400)/3600
-        );
-
-        const minutos =
-        Math.floor(
-            (diferenca%3600)/60
-        );
-
-        const segundos =
-        diferenca%60;
-
-        contador.innerHTML =
-        `⏳ ${dias}d ${horas}h ${minutos}m ${segundos}s`;
-
-    }
-
-    atualizar();
-
-    setInterval(
-        atualizar,
-        1000
-    );
-
-}
-
-async function carregarLatest(){
+async function carregarDados(){
 
     try{
 
-        const resposta =
-        await fetch(
-            'https://api.xatblog.net/latest'
-        );
+        const [latestReq,countReq] = await Promise.all([
+            fetch('https://api.xatblog.net/latest'),
+            fetch('https://api.xatblog.net/countdown')
+        ]);
 
-        const dados =
-        await resposta.json();
+        const latest = await latestReq.json();
+        const countdown = await countReq.json();
 
-        const power =
-        dados.powers[0];
+        const power = latest.powers[0];
 
-        powerReleaseTime =
-        power.released_int;
+        tempoRestante = countdown.remaining_int || 0;
 
-        /*
-         * TROQUE ESTA URL PELO PADRÃO
-         * CORRETO DAS IMAGENS DO XAT
-         * CASO VOCÊ TENHA O LINK OFICIAL.
-         */
+        const imagemPower =
+            'https://xatimg.com/image/' +
+            power.name +
+            '.png';
 
-        const imagem =
-        `https://xatimg.com/image/${power.name}.png`;
-
-        document.getElementById(
-            'latestPower'
-        ).innerHTML = `
+        document.getElementById('conteudo').innerHTML = `
 
             <img
-                src="${imagem}"
+                src="${imagemPower}"
                 class="power-img"
                 alt="${power.name}"
-
-                onerror="
-                    this.src='https://xatimg.com/image/EfoTbkB34Hg4.png';
-                "
-            >
+                onerror="this.src='https://xatimg.com/image/EfoTbkB34Hg4.png';">
 
             <div class="power-name">
                 ${power.name}
@@ -285,37 +188,111 @@ async function carregarLatest(){
             </div>
 
             <div class="status">
-                ${power.status.toUpperCase()}
+                ${countdown.status}
             </div>
 
-            <div
-                id="countdown"
-                class="countdown">
+            <div id="contador" class="countdown">
+                --
             </div>
 
         `;
 
-        iniciarContador();
+        atualizarContador();
 
-    }
-    catch(error){
+    }catch(e){
 
-        document.getElementById(
-            'latestPower'
-        ).innerHTML =
-        'Erro ao carregar o último Power.';
+        document.getElementById('conteudo').innerHTML =
+            'Erro ao carregar informações.';
 
-        console.error(error);
+        console.error(e);
 
     }
 
 }
 
-carregarLatest();
+function atualizarContador(){
+
+    const contador =
+        document.getElementById('contador');
+
+    if(!contador) return;
+
+    const dias =
+        Math.floor(tempoRestante / 86400);
+
+    const horas =
+        Math.floor((tempoRestante % 86400) / 3600);
+
+    const minutos =
+        Math.floor((tempoRestante % 3600) / 60);
+
+    const segundos =
+        tempoRestante % 60;
+
+    contador.innerHTML =
+        `⏳ ${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+}
+
+setInterval(() => {
+
+    if(tempoRestante > 0){
+
+        tempoRestante--;
+        atualizarContador();
+
+    }
+
+},1000);
+
+carregarDados();
 
 setInterval(
-    carregarLatest,
+    carregarDados,
     300000
+);
+
+/* Proteções básicas */
+
+document.addEventListener(
+    'contextmenu',
+    e => e.preventDefault()
+);
+
+document.addEventListener(
+    'selectstart',
+    e => e.preventDefault()
+);
+
+document.addEventListener(
+    'dragstart',
+    e => e.preventDefault()
+);
+
+document.addEventListener(
+    'copy',
+    e => e.preventDefault()
+);
+
+document.addEventListener(
+    'keydown',
+    function(e){
+
+        const key =
+            e.key.toLowerCase();
+
+        if(
+            e.key === 'F12' ||
+            (e.ctrlKey && key === 'u') ||
+            (e.ctrlKey && key === 's') ||
+            (e.ctrlKey && e.shiftKey &&
+             ['i','j','c','k'].includes(key))
+        ){
+            e.preventDefault();
+            return false;
+        }
+
+    }
 );
 
 </script>
