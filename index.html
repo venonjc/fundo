@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Último Power Xat</title>
+<title>Buteco Premium - Último Power Xat</title>
 
 <style>
 
@@ -21,47 +21,49 @@ body{
     align-items:center;
     padding-right:50px;
 
-    font-family:Segoe UI,Arial,sans-serif;
+    font-family:'Segoe UI',sans-serif;
 
     background:url('https://xatimg.com/image/EfoTbkB34Hg4.png')
-    center center/cover no-repeat fixed;
+    center center / cover no-repeat fixed;
 }
 
 body::before{
     content:'';
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.50);
+    background:rgba(0,0,0,.55);
 }
 
 .card{
     position:relative;
-    z-index:1;
+    z-index:2;
 
-    width:420px;
+    width:450px;
 
     background:rgba(0,0,0,.75);
     backdrop-filter:blur(12px);
 
-    border:1px solid rgba(255,255,255,.15);
-
     border-radius:20px;
+
+    border:1px solid rgba(255,255,255,.15);
 
     padding:25px;
 
-    color:white;
+    color:#fff;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.4);
 }
 
 .title{
     text-align:center;
     color:#FFD700;
-    margin-bottom:20px;
     font-size:28px;
+    margin-bottom:20px;
 }
 
 .power-img{
-    width:180px;
-    height:180px;
+    width:220px;
+    height:220px;
     object-fit:contain;
 
     display:block;
@@ -72,10 +74,10 @@ body::before{
     text-align:center;
     margin-top:15px;
 
-    color:#FFD700;
-
-    font-size:32px;
+    font-size:34px;
     font-weight:bold;
+
+    color:#FFD700;
 
     text-transform:uppercase;
 }
@@ -91,10 +93,10 @@ body::before{
 
     text-align:center;
 
-    color:#FFD700;
-
     font-size:28px;
     font-weight:bold;
+
+    color:#FFD700;
 }
 
 .release{
@@ -104,16 +106,33 @@ body::before{
 
 .status{
     margin-top:5px;
+    text-align:center;
+
+    color:#6BFF6B;
+    font-weight:bold;
+}
+
+.countdown{
+    margin-top:20px;
 
     text-align:center;
 
-    color:#7CFF7C;
+    font-size:22px;
     font-weight:bold;
+
+    color:#00D9FF;
 }
 
 .loading{
     text-align:center;
     padding:20px;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:center;
+    opacity:.7;
+    font-size:12px;
 }
 
 @media(max-width:768px){
@@ -125,13 +144,14 @@ body::before{
 
     .card{
         width:100%;
-        max-width:420px;
+        max-width:450px;
     }
 
 }
 
 </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -141,34 +161,98 @@ body::before{
     </div>
 
     <div id="latestPower" class="loading">
-        Carregando...
+        Carregando informações...
+    </div>
+
+    <div class="footer">
+        Buteco Premium • Xat Powers
     </div>
 
 </div>
 
 <script>
 
+let powerReleaseTime = 0;
+
+function iniciarContador() {
+
+    const contador =
+    document.getElementById('countdown');
+
+    if(!contador) return;
+
+    function atualizar() {
+
+        const agora =
+        Math.floor(Date.now()/1000);
+
+        const diferenca =
+        powerReleaseTime - agora;
+
+        if(diferenca <= 0){
+
+            contador.innerHTML =
+            '✅ Já lançado';
+
+            return;
+        }
+
+        const dias =
+        Math.floor(diferenca/86400);
+
+        const horas =
+        Math.floor(
+            (diferenca%86400)/3600
+        );
+
+        const minutos =
+        Math.floor(
+            (diferenca%3600)/60
+        );
+
+        const segundos =
+        diferenca%60;
+
+        contador.innerHTML =
+        `⏳ ${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+    }
+
+    atualizar();
+
+    setInterval(
+        atualizar,
+        1000
+    );
+
+}
+
 async function carregarLatest(){
 
     try{
 
-        const req = await fetch(
+        const resposta =
+        await fetch(
             'https://api.xatblog.net/latest'
         );
 
-        const data = await req.json();
+        const dados =
+        await resposta.json();
 
-        const power = data.powers[0];
+        const power =
+        dados.powers[0];
+
+        powerReleaseTime =
+        power.released_int;
 
         /*
-         * Caso você descubra o caminho exato
-         * da imagem oficial do xat,
-         * substitua a URL abaixo.
+         * TROQUE ESTA URL PELO PADRÃO
+         * CORRETO DAS IMAGENS DO XAT
+         * CASO VOCÊ TENHA O LINK OFICIAL.
          */
+
         const imagem =
-            'https://xatimg.com/image/' +
-            power.name +
-            '.png';
+        `https://xatimg.com/image/${power.name}.png`;
 
         document.getElementById(
             'latestPower'
@@ -178,6 +262,7 @@ async function carregarLatest(){
                 src="${imagem}"
                 class="power-img"
                 alt="${power.name}"
+
                 onerror="
                     this.src='https://xatimg.com/image/EfoTbkB34Hg4.png';
                 "
@@ -203,7 +288,14 @@ async function carregarLatest(){
                 ${power.status.toUpperCase()}
             </div>
 
+            <div
+                id="countdown"
+                class="countdown">
+            </div>
+
         `;
+
+        iniciarContador();
 
     }
     catch(error){
@@ -211,16 +303,16 @@ async function carregarLatest(){
         document.getElementById(
             'latestPower'
         ).innerHTML =
-        'Erro ao carregar informações do Power.';
+        'Erro ao carregar o último Power.';
 
         console.error(error);
+
     }
 
 }
 
 carregarLatest();
 
-/* Atualiza a cada 5 minutos */
 setInterval(
     carregarLatest,
     300000
